@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>51Talk Quiz — Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="present-mode">
+  <div class="container-wide">
+    <!-- Waiting/Idle Screen -->
+    <div id="present-idle" class="waiting-screen">
+      <div class="logo" style="font-size:4rem;">51Talk Quiz</div>
+      <p class="subtitle" style="font-size:1.5rem;">Get ready!<span class="pulse-dot"></span></p>
+    </div>
+
+    <!-- Active Question -->
+    <div id="present-active" class="hidden">
+      <div class="question-text mt-3">
+        <div class="ar" id="present-q-ar"></div>
+        <div class="en" id="present-q-en"></div>
+      </div>
+
+      <div class="flex justify-center gap-3 mt-3" style="flex-wrap:wrap;">
+        <div class="countdown-ring-wrap">
+          <svg class="countdown-ring" width="240" height="240" viewBox="0 0 240 240">
+            <circle class="ring-bg" cx="120" cy="120" r="108"/>
+            <circle class="ring-fg" id="ring-fg" cx="120" cy="120" r="108"
+                    stroke-dasharray="678.58" stroke-dashoffset="0"/>
+          </svg>
+          <span class="time-text" id="present-timer">20</span>
+        </div>
+        <div class="response-counter" style="align-self:center;">
+          <div class="response-count" id="present-response-count">0</div>
+          <div class="response-label">Responses</div>
+        </div>
+      </div>
+
+      <div class="quiz-options" id="present-options" style="max-width:700px;margin:2rem auto 0;"></div>
+    </div>
+
+    <!-- Revealed -->
+    <div id="present-revealed" class="hidden">
+      <div class="question-text mt-2">
+        <div class="ar" id="reveal-q-ar"></div>
+        <div class="en" id="reveal-q-en"></div>
+      </div>
+
+      <div id="reveal-winner"></div>
+
+      <div class="card mt-2" style="max-width:700px;margin-left:auto;margin-right:auto;">
+        <h3 class="text-center mb-1">Response Distribution</h3>
+        <div class="distribution" id="reveal-distribution"></div>
+      </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div id="present-leaderboard" class="hidden">
+      <h2 class="text-center mt-3 mb-2" style="font-size:2.5rem;font-weight:800;">
+        Leaderboard
+      </h2>
+      <ol class="leaderboard" id="present-leaderboard-list" style="max-width:700px;margin:0 auto;"></ol>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/present.js"></script>
+</body>
+</html>

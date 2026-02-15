@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>51Talk Quiz — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Auth Modal -->
+  <div id="auth-modal" class="modal-overlay">
+    <div class="modal">
+      <h2>Admin Login</h2>
+      <div class="form-group">
+        <input type="password" id="input-password" class="input" placeholder="Enter admin password" autocomplete="off">
+        <div class="error-msg" id="auth-error">Invalid password</div>
+      </div>
+      <button id="btn-login" class="btn btn-primary btn-block">Login</button>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="admin-dashboard" class="container-wide hidden">
+    <div class="page-header">
+      <h1>Quiz Admin</h1>
+      <div class="flex items-center gap-1">
+        <span class="badge" id="status-badge">IDLE</span>
+        <button id="btn-logout" class="btn btn-outline btn-sm">Logout</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="control">Control</button>
+      <button class="tab-btn" data-tab="responses">Responses</button>
+      <button class="tab-btn" data-tab="editor">Quiz Editor</button>
+    </div>
+
+    <!-- Control Tab -->
+    <div id="tab-control" class="tab-content active">
+      <div class="card mb-2">
+        <div class="form-group mb-1">
+          <label>Select Quiz</label>
+          <select id="select-quiz" class="select"></select>
+        </div>
+        <div class="form-group mb-1">
+          <label>Select Question</label>
+          <select id="select-question" class="select"></select>
+        </div>
+        <div class="form-group mb-1">
+          <label>Timer (seconds)</label>
+          <input type="number" id="input-timer" class="input" value="20" min="5" max="120" style="max-width:120px;">
+        </div>
+      </div>
+
+      <div class="control-row">
+        <button id="btn-start" class="btn btn-primary">START</button>
+        <button id="btn-reveal" class="btn btn-outline" disabled>REVEAL</button>
+        <button id="btn-leaderboard" class="btn btn-outline" disabled>LEADERBOARD</button>
+        <button id="btn-stop" class="btn btn-danger" disabled>STOP</button>
+      </div>
+
+      <div class="card mt-2">
+        <h3 class="mb-1">Quick Actions</h3>
+        <div class="control-row">
+          <button id="btn-clear-responses" class="btn btn-outline btn-sm">Clear Quiz Responses</button>
+          <button id="btn-clear-all" class="btn btn-danger btn-sm">Clear All Responses</button>
+        </div>
+      </div>
+
+      <!-- Live Preview -->
+      <div class="card mt-2">
+        <h3 class="mb-1">Active Question Preview</h3>
+        <div id="preview-question" class="text-center" style="color:var(--text-muted);">No active question</div>
+      </div>
+    </div>
+
+    <!-- Responses Tab -->
+    <div id="tab-responses" class="tab-content">
+      <div class="card">
+        <div class="flex justify-between items-center mb-1">
+          <h3>Live Responses</h3>
+          <span id="response-count-badge" class="badge badge-active">0 responses</span>
+        </div>
+        <ul class="response-list" id="response-list"></ul>
+        <p id="no-responses" class="text-center mt-2" style="color:var(--text-muted);">No responses yet</p>
+      </div>
+    </div>
+
+    <!-- Quiz Editor Tab -->
+    <div id="tab-editor" class="tab-content">
+      <div class="card mb-2">
+        <h3 class="mb-1">Quiz</h3>
+        <div class="form-group mb-1">
+          <select id="editor-quiz-select" class="select">
+            <option value="">— Select quiz to edit —</option>
+          </select>
+        </div>
+        <div class="form-row mb-1">
+          <div class="form-group">
+            <label>Title (English)</label>
+            <input type="text" id="editor-quiz-en" class="input" placeholder="Quiz title in English">
+          </div>
+          <div class="form-group">
+            <label>Title (Arabic)</label>
+            <input type="text" id="editor-quiz-ar" class="input text-ar" placeholder="عنوان المسابقة">
+          </div>
+        </div>
+        <div class="control-row">
+          <button id="btn-save-quiz" class="btn btn-success btn-sm">Save Quiz</button>
+          <button id="btn-new-quiz" class="btn btn-outline btn-sm">New Quiz</button>
+          <button id="btn-delete-quiz" class="btn btn-danger btn-sm">Delete Quiz</button>
+        </div>
+      </div>
+
+      <div class="card" id="question-editor-card">
+        <h3 class="mb-1">Questions</h3>
+        <div class="form-group mb-1">
+          <select id="editor-question-select" class="select">
+            <option value="">— Select question to edit —</option>
+          </select>
+        </div>
+        <div class="form-row mb-1">
+          <div class="form-group">
+            <label>Question (English)</label>
+            <input type="text" id="editor-q-en" class="input" placeholder="Question in English">
+          </div>
+          <div class="form-group">
+            <label>Question (Arabic)</label>
+            <input type="text" id="editor-q-ar" class="input text-ar" placeholder="السؤال بالعربية">
+          </div>
+        </div>
+        <div class="form-group mb-1">
+          <label>Sort Order</label>
+          <input type="number" id="editor-q-sort" class="input" value="0" min="0" style="max-width:100px;">
+        </div>
+        <div id="options-editor">
+          <label class="mb-1" style="font-size:0.85rem;font-weight:600;color:var(--text-secondary);">Options (check = correct)</label>
+          <div class="option-editor">
+            <input type="text" class="input opt-en" placeholder="Option A (English)">
+            <input type="text" class="input opt-ar text-ar" placeholder="الخيار أ">
+            <input type="radio" name="correct-opt" value="0" class="correct-toggle" checked>
+          </div>
+          <div class="option-editor">
+            <input type="text" class="input opt-en" placeholder="Option B (English)">
+            <input type="text" class="input opt-ar text-ar" placeholder="الخيار ب">
+            <input type="radio" name="correct-opt" value="1" class="correct-toggle">
+          </div>
+          <div class="option-editor">
+            <input type="text" class="input opt-en" placeholder="Option C (English)">
+            <input type="text" class="input opt-ar text-ar" placeholder="الخيار ج">
+            <input type="radio" name="correct-opt" value="2" class="correct-toggle">
+          </div>
+          <div class="option-editor">
+            <input type="text" class="input opt-en" placeholder="Option D (English)">
+            <input type="text" class="input opt-ar text-ar" placeholder="الخيار د">
+            <input type="radio" name="correct-opt" value="3" class="correct-toggle">
+          </div>
+        </div>
+        <div class="control-row mt-1">
+          <button id="btn-save-question" class="btn btn-success btn-sm">Save Question</button>
+          <button id="btn-new-question" class="btn btn-outline btn-sm">New Question</button>
+          <button id="btn-delete-question" class="btn btn-danger btn-sm">Delete Question</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

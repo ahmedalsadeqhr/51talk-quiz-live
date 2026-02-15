@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>51Talk Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Name Entry -->
+    <div id="screen-name" class="waiting-screen">
+      <div class="logo">51Talk Quiz</div>
+      <p class="subtitle mb-2">Enter your name to join</p>
+      <div style="max-width:360px; width:100%;">
+        <input type="text" id="input-name" class="input mb-1" placeholder="Your name..." maxlength="30" autocomplete="off">
+        <button id="btn-join" class="btn btn-primary btn-block btn-lg">Join Game</button>
+      </div>
+    </div>
+
+    <!-- Waiting for question -->
+    <div id="screen-waiting" class="waiting-screen hidden">
+      <div class="logo">51Talk Quiz</div>
+      <p class="subtitle">Waiting for next question<span class="pulse-dot"></span></p>
+      <p class="mt-2" style="color:var(--text-muted);">Playing as <strong id="display-name"></strong></p>
+    </div>
+
+    <!-- Active question -->
+    <div id="screen-question" class="hidden">
+      <div class="page-header">
+        <h1>51Talk Quiz</h1>
+        <span class="badge badge-active">LIVE</span>
+      </div>
+      <div class="timer-display">
+        <div class="timer-value" id="timer-value">20</div>
+      </div>
+      <div class="question-text">
+        <div class="ar" id="question-ar"></div>
+        <div class="en" id="question-en"></div>
+      </div>
+      <div class="quiz-options" id="options-container"></div>
+    </div>
+
+    <!-- Already answered — waiting for reveal -->
+    <div id="screen-answered" class="hidden">
+      <div class="page-header">
+        <h1>51Talk Quiz</h1>
+        <span class="badge badge-active">LIVE</span>
+      </div>
+      <div class="feedback waiting" id="answered-feedback">
+        Answer submitted! Waiting for results...
+      </div>
+    </div>
+
+    <!-- Revealed -->
+    <div id="screen-revealed" class="hidden">
+      <div class="page-header">
+        <h1>51Talk Quiz</h1>
+        <span class="badge badge-revealed">RESULTS</span>
+      </div>
+      <div id="reveal-result"></div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div id="screen-leaderboard" class="hidden">
+      <div class="page-header">
+        <h1>51Talk Quiz</h1>
+        <span class="badge badge-leaderboard">LEADERBOARD</span>
+      </div>
+      <ol class="leaderboard" id="leaderboard-list"></ol>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/player.js"></script>
+</body>
+</html>
