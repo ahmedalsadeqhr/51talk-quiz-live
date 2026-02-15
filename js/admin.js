@@ -73,16 +73,36 @@
 
   async function verifyAndEnter(pw) {
     authError.style.display = 'none';
-    const { data, error } = await supabase.rpc('verify_admin', { pw });
-    if (error || !data) {
+    btnLogin.disabled = true;
+    btnLogin.textContent = 'Verifying...';
+
+    try {
+      const { data, error } = await supabase.rpc('verify_admin', { pw: pw });
+
+      if (error) {
+        authError.textContent = 'Connection error: ' + error.message;
+        authError.style.display = 'block';
+        return;
+      }
+
+      if (data !== true) {
+        authError.textContent = 'Invalid password';
+        authError.style.display = 'block';
+        return;
+      }
+
+      adminPw = pw;
+      sessionStorage.setItem('admin_pw', pw);
+      authModal.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+      init();
+    } catch (err) {
+      authError.textContent = 'Error: ' + err.message;
       authError.style.display = 'block';
-      return;
+    } finally {
+      btnLogin.disabled = false;
+      btnLogin.textContent = 'Login';
     }
-    adminPw = pw;
-    sessionStorage.setItem('admin_pw', pw);
-    authModal.classList.add('hidden');
-    dashboard.classList.remove('hidden');
-    init();
   }
 
   // --- Init ---
