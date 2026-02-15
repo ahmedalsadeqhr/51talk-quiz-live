@@ -77,7 +77,7 @@
     btnLogin.textContent = 'Verifying...';
 
     try {
-      const { data, error } = await supabase.rpc('verify_admin', { pw: pw });
+      const { data, error } = await sb.rpc('verify_admin', { pw: pw });
 
       if (error) {
         authError.textContent = 'Connection error: ' + error.message;
@@ -127,7 +127,7 @@
 
   // --- Load Data ---
   async function loadQuizzes() {
-    const { data } = await supabase.from('quizzes').select('*').order('created_at');
+    const { data } = await sb.from('quizzes').select('*').order('created_at');
     quizzes = data || [];
     populateQuizSelects();
   }
@@ -154,7 +154,7 @@
     selectQuestion.innerHTML = '<option value="">— Select question —</option>';
     if (!quizId) return;
 
-    const { data } = await supabase.from('questions').select('*').eq('quiz_id', quizId).order('sort_order');
+    const { data } = await sb.from('questions').select('*').eq('quiz_id', quizId).order('sort_order');
     questions = data || [];
     questions.forEach((q, i) => {
       selectQuestion.innerHTML += `<option value="${q.id}">Q${i + 1}: ${escapeHtml(q.question_en.substring(0, 50))}</option>`;
@@ -174,12 +174,12 @@
 
   // --- Active Question Subscription ---
   async function loadActiveQuestion() {
-    const { data } = await supabase.from('active_question').select('*').eq('id', 1).single();
+    const { data } = await sb.from('active_question').select('*').eq('id', 1).single();
     if (data) updateAQState(data);
   }
 
   function subscribeToAQ() {
-    supabase
+    sb
       .channel('admin-aq')
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -216,7 +216,7 @@
   function subscribeToResponses(questionId) {
     // Unsubscribe previous
     if (responseSubscription) {
-      supabase.removeChannel(responseSubscription);
+      sb.removeChannel(responseSubscription);
     }
 
     // Clear list
@@ -228,7 +228,7 @@
     loadResponses(questionId);
 
     // Subscribe to new inserts
-    responseSubscription = supabase
+    responseSubscription = sb
       .channel('admin-responses')
       .on('postgres_changes', {
         event: 'INSERT',
@@ -242,7 +242,7 @@
   }
 
   async function loadResponses(questionId) {
-    const { data } = await supabase
+    const { data } = await sb
       .from('responses')
       .select('*')
       .eq('question_id', questionId)
@@ -280,7 +280,7 @@
     const timerSec = parseInt(inputTimer.value) || 20;
     btnStart.disabled = true;
 
-    const { error } = await supabase.rpc('set_active_question', {
+    const { error } = await sb.rpc('set_active_question', {
       pw: adminPw,
       p_question_id: questionId,
       p_quiz_id: quizId,
@@ -295,19 +295,19 @@
 
   btnReveal.addEventListener('click', async () => {
     btnReveal.disabled = true;
-    const { error } = await supabase.rpc('update_aq_status', { pw: adminPw, new_status: 'revealed' });
+    const { error } = await sb.rpc('update_aq_status', { pw: adminPw, new_status: 'revealed' });
     if (error) alert('Error: ' + error.message);
   });
 
   btnLeaderboard.addEventListener('click', async () => {
     btnLeaderboard.disabled = true;
-    const { error } = await supabase.rpc('update_aq_status', { pw: adminPw, new_status: 'leaderboard' });
+    const { error } = await sb.rpc('update_aq_status', { pw: adminPw, new_status: 'leaderboard' });
     if (error) alert('Error: ' + error.message);
   });
 
   btnStop.addEventListener('click', async () => {
     btnStop.disabled = true;
-    const { error } = await supabase.rpc('update_aq_status', { pw: adminPw, new_status: 'idle' });
+    const { error } = await sb.rpc('update_aq_status', { pw: adminPw, new_status: 'idle' });
     if (error) alert('Error: ' + error.message);
   });
 
@@ -315,7 +315,7 @@
     const quizId = selectQuiz.value;
     if (!quizId) { alert('Select a quiz first.'); return; }
     if (!confirm('Clear all responses for this quiz?')) return;
-    await supabase.rpc('clear_responses', { pw: adminPw, p_quiz_id: quizId });
+    await sb.rpc('clear_responses', { pw: adminPw, p_quiz_id: quizId });
     responseList.innerHTML = '';
     noResponses.classList.remove('hidden');
     responseCountBadge.textContent = '0 responses';
@@ -325,7 +325,7 @@
     if (!confirm('Clear ALL responses for ALL quizzes?')) return;
     // Clear each quiz individually since DELETE without WHERE is blocked
     for (const q of quizzes) {
-      await supabase.rpc('clear_responses', { pw: adminPw, p_quiz_id: q.id });
+      await sb.rpc('clear_responses', { pw: adminPw, p_quiz_id: q.id });
     }
     responseList.innerHTML = '';
     noResponses.classList.remove('hidden');
@@ -350,7 +350,7 @@
   }
 
   async function loadEditorQuestions(quizId) {
-    const { data } = await supabase.from('questions').select('*').eq('quiz_id', quizId).order('sort_order');
+    const { data } = await sb.from('questions').select('*').eq('quiz_id', quizId).order('sort_order');
     const editorQuestions = data || [];
     editorQuestionSelect.innerHTML = '<option value="">— New question —</option>';
     editorQuestions.forEach((q, i) => {
@@ -402,7 +402,7 @@
     if (!titleEn || !titleAr) { alert('Fill in both titles.'); return; }
 
     const quizId = editorQuizSelect.value || null;
-    const { data, error } = await supabase.rpc('upsert_quiz', {
+    const { data, error } = await sb.rpc('upsert_quiz', {
       pw: adminPw,
       p_id: quizId,
       p_title_en: titleEn,
@@ -427,7 +427,7 @@
     if (!quizId) return;
     if (!confirm('Delete this quiz and all its questions?')) return;
 
-    const { error } = await supabase.rpc('delete_quiz', { pw: adminPw, p_id: quizId });
+    const { error } = await sb.rpc('delete_quiz', { pw: adminPw, p_id: quizId });
     if (error) { alert('Error: ' + error.message); return; }
     await loadQuizzes();
     editorQuizEn.value = '';
@@ -462,7 +462,7 @@
     const qId = editorQuestionSelect.value || null;
     const sortOrder = parseInt(editorQSort.value) || 0;
 
-    const { error } = await supabase.rpc('upsert_question', {
+    const { error } = await sb.rpc('upsert_question', {
       pw: adminPw,
       p_quiz_id: quizId,
       p_question_en: qEn,
@@ -489,7 +489,7 @@
     if (!qId) return;
     if (!confirm('Delete this question?')) return;
 
-    const { error } = await supabase.rpc('delete_question', { pw: adminPw, p_id: qId });
+    const { error } = await sb.rpc('delete_question', { pw: adminPw, p_id: qId });
     if (error) { alert('Error: ' + error.message); return; }
 
     const quizId = editorQuizSelect.value;

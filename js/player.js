@@ -67,7 +67,7 @@
     loadActiveQuestion();
 
     // Subscribe to changes
-    supabase
+    sb
       .channel('aq-changes')
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -81,7 +81,7 @@
   }
 
   async function loadActiveQuestion() {
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('active_question')
       .select('*')
       .eq('id', 1)
@@ -139,7 +139,7 @@
   async function loadQuestion(questionId) {
     if (currentQuestion && currentQuestion.id === questionId) return;
 
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from('questions')
       .select('*')
       .eq('id', questionId)
@@ -153,7 +153,7 @@
 
   // --- Check if already answered ---
   async function checkAlreadyAnswered(questionId) {
-    const { data } = await supabase
+    const { data } = await sb
       .from('responses')
       .select('*')
       .eq('question_id', questionId)
@@ -216,7 +216,7 @@
     const responseTimeMs = getResponseTimeMs(currentAQ.started_at);
     const isCorrect = originalIndex === currentQuestion.correct_index;
 
-    const { error } = await supabase
+    const { error } = await sb
       .from('responses')
       .insert({
         question_id: currentAQ.question_id,
@@ -315,7 +315,7 @@
   async function showLeaderboard() {
     if (!currentAQ || !currentAQ.quiz_id) return;
 
-    const { data, error } = await supabase.rpc('get_leaderboard', {
+    const { data, error } = await sb.rpc('get_leaderboard', {
       p_quiz_id: currentAQ.quiz_id,
       p_limit: 10
     });

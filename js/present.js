@@ -43,7 +43,7 @@
   subscribeToAQ();
 
   async function loadActiveQuestion() {
-    const { data } = await supabase
+    const { data } = await sb
       .from('active_question')
       .select('*')
       .eq('id', 1)
@@ -52,7 +52,7 @@
   }
 
   function subscribeToAQ() {
-    supabase
+    sb
       .channel('present-aq')
       .on('postgres_changes', {
         event: 'UPDATE',
@@ -104,7 +104,7 @@
   async function loadQuestion(questionId) {
     if (currentQuestion && currentQuestion.id === questionId) return;
 
-    const { data } = await supabase
+    const { data } = await sb
       .from('questions')
       .select('*')
       .eq('id', questionId)
@@ -194,7 +194,7 @@
     // Load existing count
     loadResponseCount(questionId);
 
-    responseChannel = supabase
+    responseChannel = sb
       .channel('present-responses')
       .on('postgres_changes', {
         event: 'INSERT',
@@ -210,13 +210,13 @@
 
   function unsubscribeResponses() {
     if (responseChannel) {
-      supabase.removeChannel(responseChannel);
+      sb.removeChannel(responseChannel);
       responseChannel = null;
     }
   }
 
   async function loadResponseCount(questionId) {
-    const { count } = await supabase
+    const { count } = await sb
       .from('responses')
       .select('*', { count: 'exact', head: true })
       .eq('question_id', questionId);
@@ -233,7 +233,7 @@
     revealQEn.textContent = currentQuestion.question_en;
 
     // Get all responses for this question
-    const { data: responses } = await supabase
+    const { data: responses } = await sb
       .from('responses')
       .select('*')
       .eq('question_id', currentAQ.question_id)
@@ -299,7 +299,7 @@
   async function renderLeaderboard() {
     if (!currentAQ || !currentAQ.quiz_id) return;
 
-    const { data } = await supabase.rpc('get_leaderboard', {
+    const { data } = await sb.rpc('get_leaderboard', {
       p_quiz_id: currentAQ.quiz_id,
       p_limit: 10
     });
